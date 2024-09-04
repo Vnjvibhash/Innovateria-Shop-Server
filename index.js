@@ -1,23 +1,25 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv')
-dotenv.config({});
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import connectDB from './utils/db.js';
+import userRoute from './routes/userRoute.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
-
+//?Middle wair
+app.use(cors({ origin: '*' }))
 app.use(bodyParser.json());
 
-const uri = process.env.MONGO_URL;
+// All APIs
+app.use("/api/v1/user", userRoute);
 
-mongoose.connect(uri)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Global error handler
+app.use((error, req, res, next) => {
+  res.status(500).json({ success: false, message: error.message, data: null });
+});
 
-const db = mongoose.connection;
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  connectDB();
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
