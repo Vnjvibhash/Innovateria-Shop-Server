@@ -4,6 +4,7 @@ import cors from 'cors';
 import connectDB from './utils/db.js';
 import userRoute from './routes/userRoute.js';
 import posterRoute from './routes/posterRoute.js';
+import categoryRoute from './routes/categoryRoute.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 // All APIs
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/posters", posterRoute)
+app.use("/api/v1/categories", categoryRoute)
 
 // Global error handler
 app.use((error, req, res, next) => {
