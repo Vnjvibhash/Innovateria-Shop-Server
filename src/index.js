@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import connectDB from './utils/db.js';
 import userRoute from './routes/userRoute.js';
+import posterRoute from './routes/posterRoute.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(bodyParser.json());
 
 // All APIs
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/posters", posterRoute)
 
 // Global error handler
 app.use((error, req, res, next) => {

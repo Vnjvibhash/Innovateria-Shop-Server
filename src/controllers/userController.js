@@ -5,6 +5,16 @@ import { isValidEmail } from '../utils/helper.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
+// Get all users
+export const getUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json({ success: true, message: "All users", data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
 // Register
 export const userRgister = async (req, res) => {
     try {
@@ -12,14 +22,15 @@ export const userRgister = async (req, res) => {
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: "Name, email, and password are required." });
         }
-        const user = await User.findOne({ email });
+        const emailId = email.toLowerCase();
+        const user = await User.findOne({ email: emailId });
         if (user) {
             return res.status(401).json({ success: false, message: "Email already exist" });
         }
-        if (isValidEmail(email)) {
+        if (isValidEmail(emailId)) {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
-            await User.create({ name, email, password:hashedPassword });
+            await User.create({ name, email:emailId, password:hashedPassword });
             res.json({ success: true, message: "User created successfully.", data: null });
         } else { 
             return res.status(400).json({ success: false, message: "Please enter a valid email" }); 
@@ -36,8 +47,8 @@ export const userLogin = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ success: false, message: "Email and password are required." });
         }
-
-        const user = await User.findOne({ email });
+        const emailId = email.toLowerCase();
+        const user = await User.findOne({ email:emailId });
         if (!user) {
             return res.status(401).json({ success: false, message: "Invalid email" });
         }
@@ -104,12 +115,12 @@ export const updateUserProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-
+        const emailId = email.toLowerCase();
         if (isValidEmail(email)) {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
             user.name = name;
-            user.email = email;
+            user.email = emailId;
             user.password = hashedPassword;
             user.updatedAt = Date.now();
             await user.save();
@@ -136,5 +147,24 @@ export const getUserProfile = async (req, res) => {
     }
 };
 
-
+// Delete profile
+export const deleteUserProfile = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Access denied. Admins only.' });
+        }
+        const user = await User.findById(userId);
+        const token = await Token.findOne({ userId: userId });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        await user.deleteOne({ _id: userId });
+        await token.deleteOne({ _id: token._id });
+        res.json({ success: true, message: "User deleted successfully." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
