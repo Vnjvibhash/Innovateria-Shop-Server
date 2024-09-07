@@ -135,7 +135,7 @@ export const updateCategory = async (req, res) => {
     }
 };
 
-// Delete a category unlink the image too
+// Delete a category
 export const deleteCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
