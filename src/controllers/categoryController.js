@@ -1,4 +1,4 @@
-// Description: This file contains the logic for poster related operations.
+// Description: This file contains the logic for category related operations.
 import Category from '../models/categoryModel.js';
 import multer from 'multer';
 import path from 'path';
