@@ -1,5 +1,6 @@
 // Description: This file contains the logic for brand related operations.
 import Brand from '../models/brandModel.js';
+import Product from '../models/productModel.js';
 
 // Get all brands
 export const getBrands = async (req, res) => {
@@ -24,6 +25,19 @@ export const getBrand = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 }
+
+// Get brand by subcategory ID
+export const getBrandBySubcategory = async (req, res) => {
+    const subcategoryID = req.params.id;
+    try {
+        const brands = await Brand.find({ subcategoryId: subcategoryID }).populate
+            ('subcategoryId').sort({ 'subcategoryId': 1 });
+        res.json({ success: true, message: "Brands retrieved successfully.", data: brands });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 // Create a new Brand
 export const createBrand = async (req, res) => {

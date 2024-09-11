@@ -1,5 +1,7 @@
 // Description: This file contains the logic for sub-category related operations.
 import SubCategory from '../models/subCategoryModel.js';
+import Brand from '../models/brandModel.js';
+import Product from '../models/productModel.js';
 
 // Get all sub-category
 export const getSubCategories = async (req, res) => {
@@ -20,6 +22,17 @@ export const getSubCategory = async (req, res) => {
             return res.status(404).json({ success: false, message: "Sub-category not found." });
         }
         res.json({ success: true, message: "Sub-category retrieved successfully.", data: subCategory });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Get sub-categories by category ID
+export const getSubCategoriesByCategory = async (req, res) => {
+    const categoryID = req.params.id;
+    try {
+        const subCategories = await SubCategory.find({ categoryId: categoryID }).populate('categoryId').sort({ 'categoryId': 1 });
+        res.json({ success: true, message: "Sub-categories retrieved successfully.", data: subCategories });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -66,7 +79,7 @@ export const deleteSubCategory = async (req, res) => {
     try {
         // Check if any brand is associated with the sub-category
         const brandCount = await Brand.countDocuments({ subcategoryId: subCategoryID });
-        if (brandCount > 0) {
+        if (brandCount.length > 0) {
             return res.status(400).json({ success: false, message: "Cannot delete sub-category. It is associated with one or more brands." });
         }
 

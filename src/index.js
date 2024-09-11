@@ -7,11 +7,14 @@ import posterRoute from './routes/posterRoute.js';
 import categoryRoute from './routes/categoryRoute.js';
 import subCategoryRoute from './routes/subCategoryRoute.js';
 import brandRoute from './routes/brandRoute.js';
+import variantRoute from './routes/variantRoute.js';
+import variantTypeRoute from './routes/variantTypeRoute.js';
+import couponRoute from './routes/couponRoute.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-//?Middle wair
+
 app.use(cors({ origin: '*' }))
 app.use(bodyParser.json());
 
@@ -21,6 +24,9 @@ app.use("/api/v1/posters", posterRoute)
 app.use("/api/v1/categories", categoryRoute)
 app.use("/api/v1/sub-category", subCategoryRoute)
 app.use("/api/v1/brand", brandRoute)
+app.use("/api/v1/variant", variantRoute)
+app.use("/api/v1/variant-type", variantTypeRoute)
+app.use("api/v1/coupon", couponRoute)
 
 // Global error handler
 app.use((error, req, res, next) => {
