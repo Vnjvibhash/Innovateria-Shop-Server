@@ -6,6 +6,7 @@ import userRoute from './routes/userRoute.js';
 import posterRoute from './routes/posterRoute.js';
 import categoryRoute from './routes/categoryRoute.js';
 import subCategoryRoute from './routes/subCategoryRoute.js';
+import brandRoute from './routes/brandRoute.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/posters", posterRoute)
 app.use("/api/v1/categories", categoryRoute)
 app.use("/api/v1/sub-category", subCategoryRoute)
+app.use("/api/v1/brand", brandRoute)
 
 // Global error handler
 app.use((error, req, res, next) => {

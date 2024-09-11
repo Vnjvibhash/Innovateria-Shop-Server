@@ -59,3 +59,30 @@ export const updateSubCategory = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Delete a sub-category
+export const deleteSubCategory = async (req, res) => {
+    const subCategoryID = req.params.id;
+    try {
+        // Check if any brand is associated with the sub-category
+        const brandCount = await Brand.countDocuments({ subcategoryId: subCategoryID });
+        if (brandCount > 0) {
+            return res.status(400).json({ success: false, message: "Cannot delete sub-category. It is associated with one or more brands." });
+        }
+
+        // Check if any products reference this sub-category
+        const products = await Product.find({ proSubCategoryId: subCategoryID });
+        if (products.length > 0) {
+            return res.status(400).json({ success: false, message: "Cannot delete sub-category. Products are referencing it." });
+        }
+
+        // If no brands or products are associated, proceed with deletion of the sub-category
+        const subCategory = await SubCategory.findByIdAndDelete(subCategoryID);
+        if (!subCategory) {
+            return res.status(404).json({ success: false, message: "Sub-category not found." });
+        }
+        res.json({ success: true, message: "Sub-category deleted successfully." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
