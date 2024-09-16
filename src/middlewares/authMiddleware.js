@@ -36,7 +36,6 @@ export const authenticateAdmin = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
         }
-        console.log(token);
         // Verify token and extract user ID
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const user = await User.findById(decoded.userId);
