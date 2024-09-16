@@ -9,6 +9,7 @@ import subCategoryRoute from './routes/subCategoryRoute.js';
 import brandRoute from './routes/brandRoute.js';
 import variantRoute from './routes/variantRoute.js';
 import variantTypeRoute from './routes/variantTypeRoute.js';
+import productRoute from './routes/productRoute.js';
 import couponRoute from './routes/couponRoute.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -26,6 +27,7 @@ app.use("/api/v1/sub-category", subCategoryRoute)
 app.use("/api/v1/brand", brandRoute)
 app.use("/api/v1/variant", variantRoute)
 app.use("/api/v1/variant-type", variantTypeRoute)
+app.use("/api/v1/procucts", productRoute)
 app.use("api/v1/coupon", couponRoute)
 
 // Global error handler

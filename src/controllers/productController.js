@@ -3,7 +3,7 @@ import Product from '../models/productModel.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { uploadPosters } from '../utils/uploadFile.js'
+import { uploadProduct } from '../utils/uploadFile.js'
 import { fileURLToPath } from 'url';
 
 // Get the equivalent of __dirname
@@ -182,6 +182,4 @@ export const deleteProduct = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
-export default router;
 
