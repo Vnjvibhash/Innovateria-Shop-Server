@@ -3,30 +3,41 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
+    required: true,
     unique: true,
-    required: true
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
+    enum: ['user', 'admin', 'vendor'],
+    default: 'user',
   },
-  isActive: {
+  status: {
     type: Boolean,
-    default: true
+    default: true,
+  },
+  profilePic: {
+    type: String,
+    default: null,
+  },
+  phoneNumber: {
+    type: String,
+    default: null,
+  },
+  address: {
+    street: { type: String, default: null },
+    city: { type: String, default: null },
+    state: { type: String, default: null },
+    zip: { type: String, default: null },
   }
-}, {
-  timestamps: true // Automatically manage createdAt and updatedAt
-});
+}, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
-
 export default User;

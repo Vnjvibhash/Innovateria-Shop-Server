@@ -1,10 +1,10 @@
-// Description: This file contains the logic for user related operations.
 import User from '../models/userModel.js';
 import Token from '../models/tokenModel.js';
 import { isValidEmail } from '../utils/helper.js';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 // Configure multer to handle form-data
 const upload = multer();
@@ -19,94 +19,117 @@ export const getUsers = async (req, res) => {
   }
 };
 
-// Register
-export const userRgister = async (req, res) => {
+// Get User by ID
+export const getUserById = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: 'Name, email, and password are required.',
-        });
+    const userId = req.params.id;
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    const emailId = email.toLowerCase();
-    const user = await User.findOne({ email: emailId });
-    if (user) {
-      return res
-        .status(401)
-        .json({ success: false, message: 'Email already exist' });
-    }
-    if (isValidEmail(emailId)) {
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-      await User.create({ name, email: emailId, password: hashedPassword });
-      res.json({
-        success: true,
-        message: 'User created successfully.',
-        data: null,
-      });
-    } else {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Please enter a valid email' });
-    }
+    res.json({ success: true, message: 'User found', data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Register
+export const createUser = [
+  upload.none(),
+  async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      role = 'user',
+      status = true,
+      profilePic = null,
+      phoneNumber = null,
+      address = {},
+    } = req.body;
+
+    // Check if all required fields are present
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
+    }
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'User with this email already exists.' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user with all fields from the schema
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      status, // Store status instead of isActive
+      profilePic,
+      phoneNumber,
+      address: {
+        street: address.street || null,
+        city: address.city || null,
+        state: address.state || null,
+        zip: address.zip || null,
+      },
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: newUser,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}];
 
 // Login
 export const userLogin = [
   upload.none(),
   async (req, res) => {
     try {
-      const { email, password } = req.body;
-      console.log(req.body);
-      if (!email || !password) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: 'Email and password are required.',
-          });
-      }
-      const emailId = email.toLowerCase();
+      const { identifier, password } = req.body;
 
-      const user = await User.findOne({ email: emailId });
+      // Check for required fields
+      if (!identifier || !password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Identifier (email or mobile number) and password are required.',
+        });
+      }
+
+      // Find user by email or mobile number
+      const user = await User.findOne({
+        $or: [
+          { email: identifier.toLowerCase() },
+          { phoneNumber: identifier }
+        ]
+      });
+
       if (!user) {
-        return res
-          .status(401)
-          .json({ success: false, message: 'Invalid email' });
+        return res.status(401).json({ success: false, message: 'Invalid email/mobile number or password' });
       }
 
+      // Compare password
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res
-          .status(401)
-          .json({ success: false, message: 'Invalid password' });
+        return res.status(401).json({ success: false, message: 'Invalid email/mobile number or password' });
       }
 
-      const token = jwt.sign(
-        { userId: user._id },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '2h' },
-      );
+      // Create JWT token
+      const token = jwt.sign({ userId: user._id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' });
 
-      const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
-
-      const existingToken = await Token.findOne({ userId: user._id });
-      if (existingToken) {
-        await Token.updateOne({ userId: user._id }, { token, expiresAt });
-      } else {
-        await Token.create({ token, userId: user._id, expiresAt });
-      }
-
-      const bearerToken = 'Bearer ' + token;
-
-      res
-        .status(200)
+      // Set the token in a cookie
+      res.status(200)
         .cookie('token', token, {
           maxAge: 2 * 60 * 60 * 1000,
           httpOnly: true,
@@ -116,8 +139,8 @@ export const userLogin = [
           success: true,
           message: 'User logged in successfully.',
           tokenType: 'Bearer',
-          token: bearerToken,
-          user,
+          token,
+          user: { id: user._id, email: user.email, phoneNumber: user.phoneNumber, role: user.role },
         });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
@@ -125,53 +148,54 @@ export const userLogin = [
   },
 ];
 
-// export const userLogin = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-//         console.log(req.body);
-//         if (!email || !password) {
-//             return res.status(400).json({ success: false, message: "Email and password are required." });
-//         }
-//         const emailId = email.toLowerCase();
-//         const user = await User.findOne({ email:emailId });
-//         if (!user) {
-//             return res.status(401).json({ success: false, message: "Invalid email" });
-//         }
+// Password Reset Request (Send Reset Token)
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch) {
-//             return res.status(401).json({ success: false, message: "Invalid password" });
-//         }
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    await Token.create({
+      userId: user._id,
+      token: resetToken,
+      type: 'passwordReset',
+      expiresAt: Date.now() + 3600000, // 1-hour expiry
+    });
 
-//         // Generate token
-//         const token = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' });
+    // Send reset email (implement the email logic)
+    // await sendPasswordResetEmail(user.email, resetToken);
 
-//         // Set the token expiration date
-//         const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000); // Token expires in 2 hours
+    res.json({ success: true, message: 'Password reset token sent.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-//         // Check if a token already exists for the user
-//         const existingToken = await Token.findOne({ userId: user._id });
+// Reset Password
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    const tokenRecord = await Token.findOne({ token, type: 'passwordReset', expiresAt: { $gt: Date.now() } });
+    if (!tokenRecord) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+    }
 
-//         if (existingToken) {
-//             // Update the existing token
-//             await Token.updateOne({ userId: user._id }, { token, expiresAt });
-//         } else {
-//             // Create a new token
-//             await Token.create({ token, userId: user._id, expiresAt });
-//         }
+    const user = await User.findById(tokenRecord.userId);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    await Token.deleteOne({ _id: tokenRecord._id });
 
-//         const bearerToken = 'Bearer '+token;
-
-//         res.status(200)
-//             .cookie('token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' })
-//             .json({ success: true, message: "User logged in successfully.", tokenType: 'Bearer', token: bearerToken, user });
-//     } catch (error) {
-//         res.status(500).json({ success: false, message: error.message });
-//     }
-// };
+    res.json({ success: true, message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 // Logout
-
 export const logoutUser = async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -186,87 +210,82 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-// Update User
-export const updateUserProfile = [
+// Admin Update Any User// Update User Profile (Self or Admin Update)
+export const updateUser = [
   upload.none(),
   async (req, res) => {
-    try {
-      const { name, email, password } = req.body;
-      if (!name || !email || !password) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: 'Name, email, and password are required.',
-          });
-      }
-
-      const user = await User.findById(req.userId);
-      if (!user) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'User not found' });
-      }
-      const emailId = email.toLowerCase();
-      if (isValidEmail(email)) {
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        user.name = name;
-        user.email = emailId;
-        user.password = hashedPassword;
-        user.updatedAt = Date.now();
-        await user.save();
-        res.json({
-          success: true,
-          message: 'User updated successfully.',
-          data: user,
-        });
-      } else {
-        return res
-          .status(400)
-          .json({ success: false, message: 'Please enter a valid email' });
-      }
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  },
-];
-
-// Get Profile
-export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('-password');
+    const {
+      name,
+      email,
+      password,
+      role,
+      status, // Change isActive to status
+      profilePic,
+      phoneNumber,
+      address = {},
+    } = req.body;
+
+    // Find the user by ID (could be the authenticated user or any user for admin)
+    const userId = req.userId || req.params.id; // req.userId for self-update, req.params.id for admin
+    const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    res.json({ success: true, data: user });
+
+    // Update fields only if they are provided in the request
+    user.name = name || user.name;
+    user.email = email || user.email;
+    if (password) {
+      user.password = await bcrypt.hash(password, 10); // Only update if password is provided
+    }
+    user.role = role || user.role;
+    user.status = status !== undefined ? status : user.status; // Handle boolean update
+    user.profilePic = profilePic || user.profilePic;
+    user.phoneNumber = phoneNumber || user.phoneNumber;
+
+    user.address.street = address.street || user.address.street;
+    user.address.city = address.city || user.address.city;
+    user.address.state = address.state || user.address.state;
+    user.address.zip = address.zip || user.address.zip;
+
+    user.updatedAt = Date.now(); // Set update timestamp
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+  }];
+
+// Admin Delete User
+export const deleteUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({ success: true, message: 'User deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Delete profile
-export const deleteUserProfile = async (req, res) => {
+// User ger is Profile Details
+export const getUserProfile = async (req, res) => {
   try {
-    const userId = req.params.id;
-
-    if (req.user.role !== 'admin') {
-      return res
-        .status(403)
-        .json({ success: false, message: 'Access denied. Admins only.' });
-    }
-    const user = await User.findById(userId);
-    const token = await Token.findOne({ userId: userId });
+    const user = await User.findById(req.userId);
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    await user.deleteOne({ _id: userId });
-    await token.deleteOne({ _id: token._id });
-    res.json({ success: true, message: 'User deleted successfully.' });
+    res.status(200).json({ success: true, message: 'User profile', data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

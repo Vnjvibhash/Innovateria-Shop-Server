@@ -1,15 +1,17 @@
 // couponRoute.js
 import express from 'express';
-import { authenticateAdmin } from '../middlewares/authMiddleware.js';
 import { createCoupon, deleteCoupon, getCoupons, getCoupon, updateCoupon, validateCoupon } from '../controllers/couponController.js';
+import { authenticateToken, authorizeRoles } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/').get(getCoupons);
 router.route('/:id').get(getCoupon);
-router.route('/create').post(authenticateAdmin, createCoupon);
-router.route('/update/:id').put(authenticateAdmin, updateCoupon);
-router.route('/delete/:id').delete(authenticateAdmin, deleteCoupon);
+
+router.use(authenticateToken);
+router.route('/').post( createCoupon);
+router.route('/:id').put( updateCoupon);
+router.route('/:id').delete( deleteCoupon);
 router.route('/validate').post(validateCoupon);
 
 export default router;

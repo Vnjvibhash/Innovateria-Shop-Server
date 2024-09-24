@@ -28,7 +28,7 @@ export const getBrand = async (req, res) => {
 
 // Get brand by subcategory ID
 export const getBrandBySubcategory = async (req, res) => {
-    const subcategoryID = req.params.id;
+    const subcategoryID = req.params.subId;
     try {
         const brands = await Brand.find({ subcategoryId: subcategoryID }).populate
             ('subcategoryId').sort({ 'subcategoryId': 1 });
