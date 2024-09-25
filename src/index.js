@@ -27,17 +27,6 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: 'Internal Server Error' });
 });
 
-/*
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    callback(null, true);
-  },
-  credentials: true,
-};
-app.use(cors(corsOptions));
-*/
-
 app.use(bodyParser.json());
 
 // All APIs
