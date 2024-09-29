@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 export const getCategories = async (req, res) => {
     try {
         const categories = await Category.find();
-        res.json({ success: true, message: "All categories", data: categories });
+        res.status(200).json({ success: true, message: "All categories", data: categories });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -30,106 +30,58 @@ export const getCategory = async (req, res) => {
         res.json({ success: true, message: "Category found", data: category });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
-    }
+    }5
 };
 
 // Create a new Category
 export const createCategory = async (req, res) => {
     try {
-        uploadCategory.single('img')(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
-                    err.message = 'File size is too large. Maximum filesize is 5MB.';
-                }
-                console.log(`Add category: ${err}`);
-                return res.json({ success: false, message: err });
-            } else if (err) {
-                console.log(`Add category: ${err}`);
-                return res.json({ success: false, message: err });
-            }
-            const { name } = req.body;
-            let imageUrl = 'no_url';
-            if (req.file) {
-                // Dynamically construct the URL using HOST_URL and PORT from environment variables
-                imageUrl = `${process.env.HOST_URL}:${process.env.PORT}/public/images/categories/${req.file.filename}`;
-            }
-
-            if (!name) {
-                return res.status(400).json({ success: false, message: "Name is required." });
-            }
-
-            const category = new Category({
-                name,
-                image: imageUrl
-            });
-
-            await category.save();
-            res.json({ success: true, message: "Category created", data: category });
+        const { name, image } = req.body;
+        if (!name && !image) {
+            return res.status(400).json({ success: false, message: "Name & image both are required." });
+        }
+        const category = new Category({
+            name,
+            image: image
         });
+
+        await category.save();
+        res.json({ success: true, message: "Category created", data: category });
     } catch (error) {
+        // Handle errors
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // Update a category
 export const updateCategory = async (req, res) => {
     try {
         const catId = req.params.id;
-
-        // Fetch the existeing category data to get the old image url
         const category = await Category.findById(catId);
         if (!category) {
             return res.status(404).json({ success: false, message: "Category not found" });
         }
-        uploadCategory.single('img')(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
-                    err.message = 'File size is too large. Maximum filesize is 5MB.';
-                }
-                console.log(`Update category: ${err}`);
-                return res.json({ success: false, message: err });
-            } else if (err) {
-                console.log(`Update category: ${err}`);
-                return res.json({ success: false, message: err });
-            }
-            const { name } = req.body;
-            let imageUrl = category.image;
-            if (req.file) {
-                // Dynamically construct the URL using HOST_URL and PORT from environment variables
-                imageUrl = `${process.env.HOST_URL}:${process.env.PORT}/public/images/categories/${req.file.filename}`;
+        const { name, image } = req.body;
 
-                // Delete the old image from the file system
-                const oldImagePath = path.join(__dirname, '../../public/images/categories', path.basename(category.image));
-                fs.unlink(oldImagePath, (err) => {
-                    if (err) {
-                        console.error(`Failed to delete old image: ${err.message}`);
-                    } else {
-                        console.log('Old image deleted successfully.');
-                    }
-                });
+        if (!name && !image) {
+            return res.status(400).json({ success: false, message: "Name & image both are required." });
+        }
+
+        try {
+            const updatedCategory = await Category.findByIdAndUpdate(
+                catId,
+                { name: name, image: image },
+                { new: true }
+            );
+            if (!updatedCategory) {
+                return res.status(404).json({ success: false, message: "Category not upadeted." });
             }
 
-            if (!name) {
-                return res.status(400).json({ success: false, message: "Name is required." });
-            }
-
-            try {
-                // Update the category in the database
-                const updatedCategory = await Category.findByIdAndUpdate(
-                    catId,
-                    { name: name, image: imageUrl },
-                    { new: true }
-                );
-                if (!updatedCategory) {
-                    return res.status(404).json({ success: false, message: "Poster not found." });
-                }
-
-                res.json({ success: true, message: "Category updated", data: category });
-            } catch (error) {
-                res.status(500).json({ success: false, message: error.message });
-            }
-
-        });
+            res.json({ success: true, message: "Category updated", data: category });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -142,14 +94,8 @@ export const deleteCategory = async (req, res) => {
         if (!category) {
             return res.status(404).json({ success: false, message: "Category not found" });
         }
-        const imagePath = path.join(__dirname, `../public/images/categories/${category.image.split('/').pop()}`);
-        fs.unlink(imagePath, async (err) => {
-            if (err) {
-                console.error("Error deleting image:", err);
-            }
-            await category.remove();
-            res.json({ success: true, message: "Category deleted" });
-        });
+        await category.remove();
+        res.json({ success: true, message: "Category deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
