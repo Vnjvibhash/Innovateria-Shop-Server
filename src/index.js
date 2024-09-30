@@ -40,6 +40,7 @@ app.use("/api/v1/variant-types", variantTypeRoute)
 app.use("/api/v1/products", productRoute)
 app.use("/api/v1/coupons", couponRoute)
 
+
 // Global error handler
 app.use((error, req, res, next) => {
   res.status(500).json({ success: false, message: error.message, data: null });

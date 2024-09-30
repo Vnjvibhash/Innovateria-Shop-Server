@@ -11,7 +11,7 @@ const posterSchema = new mongoose.Schema({
     required: true
   }
 }, {
-  timestamps: true  // Automatically manage createdAt and updatedAt
+  timestamps: true
 });
 
 const Poster = mongoose.model('Poster', posterSchema);
