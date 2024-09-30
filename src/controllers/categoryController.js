@@ -42,7 +42,7 @@ export const createCategory = async (req, res) => {
         }
         const category = new Category({
             name,
-            image: image
+            image
         });
 
         await category.save();
