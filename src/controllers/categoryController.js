@@ -1,14 +1,5 @@
 // Description: This file contains the logic for category related operations.
 import Category from '../models/categoryModel.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { uploadCategory } from '../utils/uploadFile.js'
-import { fileURLToPath } from 'url';
-
-// Get the equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Get all categories
 export const getCategories = async (req, res) => {
@@ -37,6 +28,7 @@ export const getCategory = async (req, res) => {
 export const createCategory = async (req, res) => {
     try {
         const { name, image } = req.body;
+        console.log(name, image);
         if (!name && !image) {
             return res.status(400).json({ success: false, message: "Name & image both are required." });
         }

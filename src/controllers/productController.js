@@ -1,14 +1,6 @@
 // Description: This file contains the logic for product related operations.
 import Product from '../models/productModel.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { uploadProduct } from '../utils/uploadFile.js'
-import { fileURLToPath } from 'url';
 
-// Get the equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Fetch all products
 export const getProducts = async (req, res) => {

@@ -1,14 +1,5 @@
 // Description: This file contains the logic for poster related operations.
 import Poster from '../models/posterModel.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { uploadPosters } from '../utils/uploadFile.js'
-import { fileURLToPath } from 'url'; // Import for simulating __dirname
-
-// Get the equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Get all posters
 export const getPosters = async (req, res) => {

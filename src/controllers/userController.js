@@ -2,12 +2,8 @@ import User from '../models/userModel.js';
 import Token from '../models/tokenModel.js';
 import { isValidEmail } from '../utils/helper.js';
 import jwt from 'jsonwebtoken';
-import multer from 'multer';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-
-// Configure multer to handle form-data
-const upload = multer();
 
 // Get all users
 export const getUsers = async (req, res) => {
@@ -34,8 +30,7 @@ export const getUserById = async (req, res) => {
 };
 
 // Register
-export const createUser = [
-  upload.none(),
+export const createUser = 
   async (req, res) => {
     try {
       const {
@@ -90,11 +85,10 @@ export const createUser = [
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
-  }];
+  };
 
 // Login
-export const userLogin = [
-  upload.none(),
+export const userLogin = 
   async (req, res) => {
     try {
       const { identifier, password } = req.body;
@@ -145,8 +139,7 @@ export const userLogin = [
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
-  },
-];
+  };
 
 // Password Reset Request (Send Reset Token)
 export const requestPasswordReset = async (req, res) => {
@@ -211,8 +204,7 @@ export const logoutUser = async (req, res) => {
 };
 
 // Update User Profile
-export const updateUser = [
-  upload.none(),
+export const updateUser = 
   async (req, res) => {
     try {
       const {id} = req.params;
@@ -253,7 +245,7 @@ export const updateUser = [
         message: error.message,
       });
     }
-  }];
+  };
 
 // Admin Delete User
 export const deleteUserProfile = async (req, res) => {
