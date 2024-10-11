@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.route('/').get(getVariants);
 router.route('/:id').get(getVariant);
-router.route('type/:id').get(getVariantsByVariantType);
+router.route('/type/:id').get(getVariantsByVariantType);
 
 router.use(authenticateToken);
 router.route('/').post( createVariant);

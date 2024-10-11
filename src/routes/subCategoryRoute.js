@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.route('/').get(getSubCategories);
 router.route('/:id').get(getSubCategory);
-router.route('cat/:id').get(getSubCategoriesByCategory);
+router.route('/cat/:id').get(getSubCategoriesByCategory);
 
 router.use(authenticateToken);
 router.route('/').post( createSubCategory);
