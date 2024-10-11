@@ -43,6 +43,7 @@ The **Innovatera Shopping App** repository provides the server-side APIs essenti
     - `POST /api/variants`: Create a new product variant.
     - `GET /api/variants`: Retrieve a list of all variants.
     - `GET /api/variants/:id`: Retrieve details of a specific variant.
+    - `GET /api/variants/type/:id`: Retrieve all variant by specific variantType.
     - `PUT /api/variants/:id`: Update variant information.
     - `DELETE /api/variants/:id`: Delete a variant.
   - **Variant Types**:
