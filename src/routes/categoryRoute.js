@@ -1,7 +1,7 @@
 // categoryRoute.js
 import express from 'express';
 import { createCategory, deleteCategory, getCategories, getCategory, updateCategory } from '../controllers/categoryController.js';
-import { authenticateToken, authorizeRoles } from '../middlewares/authMiddleware.js';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

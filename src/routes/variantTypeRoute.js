@@ -1,7 +1,7 @@
 // variantTypeRoute.js
 import express from 'express';
 import { createVariantType, deleteVariantType, getVariantTypes, getVariantType, updateVariantType } from '../controllers/variantTypeController.js';
-import { authenticateToken, authorizeRoles } from '../middlewares/authMiddleware.js';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

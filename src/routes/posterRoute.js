@@ -1,7 +1,7 @@
 // posterRoute.js
 import express from 'express';
 import { getPosters, getPoster, createPoster, updatePoster, deletePoster } from '../controllers/posterController.js';
-import { authenticateToken, authorizeRoles } from '../middlewares/authMiddleware.js';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

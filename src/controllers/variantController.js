@@ -26,6 +26,21 @@ export const getVariant = async (req, res) => {
     }
 };
 
+// Get variants by variant type ID
+export const getVariantsByVariantType = async (req, res) => {
+    const variantTypeID = req.params.id;
+    try {
+        const variants = await Variant
+            .find({ variantTypeId })
+            .populate('variantTypeId')
+            .sort({ 'variantTypeId': 1 });
+        res.json({ success: true, message: "Variants retrieved successfully.", data: variants });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // Create a new variant
 export const createVariant = async (req, res) => {
     const { name, variantTypeId } = req.body;

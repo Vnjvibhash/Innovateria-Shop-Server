@@ -1,13 +1,13 @@
 // subCategoryRoute.js
 import express from 'express';
 import { createSubCategory, deleteSubCategory, getSubCategories, getSubCategory, updateSubCategory, getSubCategoriesByCategory } from '../controllers/subCategoryController.js'
-import { authenticateToken, authorizeRoles } from '../middlewares/authMiddleware.js';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/').get(getSubCategories);
 router.route('/:id').get(getSubCategory);
-router.route('/:catId').get(getSubCategoriesByCategory);
+router.route('cat/:id').get(getSubCategoriesByCategory);
 
 router.use(authenticateToken);
 router.route('/').post( createSubCategory);

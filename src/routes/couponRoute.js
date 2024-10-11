@@ -1,7 +1,7 @@
 // couponRoute.js
 import express from 'express';
 import { createCoupon, deleteCoupon, getCoupons, getCoupon, updateCoupon, validateCoupon } from '../controllers/couponController.js';
-import { authenticateToken, authorizeRoles } from '../middlewares/authMiddleware.js';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

@@ -39,26 +39,63 @@ export const getProduct = async (req, res) => {
 // Create a product
 export const createProduct = async (req, res) => {
     try {
-        const { name, description, quantity, price, offerPrice, proCategoryId, proSubCategoryId, proBrandId, proVariantTypeId, proVariantId, images } = req.body;
+        const {
+            name,
+            description,
+            quantity,
+            price,
+            offerPrice,
+            proCategoryId,
+            proSubCategoryId,
+            proBrandId,
+            proVariantTypeId,
+            proVariantId,
+            images
+        } = req.body;
 
-        if (!name || !quantity || !price || !proCategoryId || !proSubCategoryId) {
+        if (!name || quantity === undefined || !price || !proCategoryId || !proSubCategoryId) {
             return res.status(400).json({ success: false, message: "Required fields are missing." });
+        }
+
+        if (price <= 0) {
+            return res.status(400).json({ success: false, message: "Price must be a positive number." });
+        }
+
+        if (quantity < 0) {
+            return res.status(400).json({ success: false, message: "Quantity cannot be negative." });
         }
 
         if (!Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ success: false, message: "At least one image is required." });
         }
 
-        const newProduct = new Product({ name, description, quantity, price, offerPrice, proCategoryId, proSubCategoryId, proBrandId, proVariantTypeId, proVariantId, images: images });
+        const newProduct = new Product({
+            name,
+            description,
+            quantity,
+            price,
+            offerPrice,
+            proCategoryId,
+            proSubCategoryId,
+            proBrandId,
+            proVariantTypeId,
+            proVariantId,
+            images
+        });
+
         await newProduct.save();
 
-        // Send a success response back to the client
-        res.status(201).json({ success: true, message: "Product created successfully.", data: null });
+        res.status(201).json({
+            success: true,
+            message: "Product created successfully.",
+            data: newProduct
+        });
 
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 
 // Update a product
 export const updateProduct = async (req, res) => {
@@ -66,7 +103,7 @@ export const updateProduct = async (req, res) => {
     try {
 
         const { name, description, quantity, price, offerPrice, proCategoryId, proSubCategoryId, proBrandId, proVariantTypeId, proVariantId, images } = req.body;
-        
+
         // Find the product by ID
         const productToUpdate = await Product.findById(productId);
         if (!productToUpdate) {
