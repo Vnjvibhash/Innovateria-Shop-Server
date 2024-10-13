@@ -10,8 +10,8 @@ router.route('/:id').get(getVariant);
 router.route('/type/:id').get(getVariantsByVariantType);
 
 router.use(authenticateToken);
-router.route('/').post( createVariant);
-router.route('/:id').put( updateVariant);
-router.route('/:id').delete( deleteVariant);
+router.route('/').post(createVariant);
+router.route('/:id').put(updateVariant);
+router.route('/:id').delete(deleteVariant);
 
 export default router;
