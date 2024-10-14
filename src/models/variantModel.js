@@ -12,6 +12,6 @@ const variantSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-const  Variant = mongoose.model('Variant', variantSchema);
+const Variant = mongoose.model('Variant', variantSchema);
 
 export default Variant;

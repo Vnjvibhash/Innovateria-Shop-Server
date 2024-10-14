@@ -9,8 +9,8 @@ router.route('/').get(getCategories);
 router.route('/:id').get(getCategory);
 
 router.use(authenticateToken);
-router.route('/').post( createCategory);
-router.route('/:id').put( updateCategory);
-router.route('/:id').delete( deleteCategory);
+router.route('/').post(createCategory);
+router.route('/:id').put(updateCategory);
+router.route('/:id').delete(deleteCategory);
 
 export default router;

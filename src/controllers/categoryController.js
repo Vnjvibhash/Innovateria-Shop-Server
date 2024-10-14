@@ -21,7 +21,7 @@ export const getCategory = async (req, res) => {
         res.json({ success: true, message: "Category found", data: category });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
-    }5
+    } 5
 };
 
 // Create a new Category

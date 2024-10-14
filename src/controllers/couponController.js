@@ -70,16 +70,16 @@ export const updateCoupon = async (req, res) => {
 
         const updatedCoupon = await Coupon.findByIdAndUpdate(
             couponID,
-            { 
-                couponCode, 
-                discountType, 
-                discountAmount, 
-                minimumPurchaseAmount, 
-                endDate, 
-                status, 
-                applicableCategory, 
-                applicableSubCategory, 
-                applicableProduct 
+            {
+                couponCode,
+                discountType,
+                discountAmount,
+                minimumPurchaseAmount,
+                endDate,
+                status,
+                applicableCategory,
+                applicableSubCategory,
+                applicableProduct
             },
             { new: true }
         );

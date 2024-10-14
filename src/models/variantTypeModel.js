@@ -16,4 +16,4 @@ const variantTypeSchema = new mongoose.Schema({
 // Create the Variant model
 const VariantType = mongoose.model('VariantType', variantTypeSchema);
 
-export  default VariantType;
+export default VariantType;

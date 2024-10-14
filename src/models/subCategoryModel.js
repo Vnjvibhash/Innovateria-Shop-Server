@@ -13,7 +13,7 @@ const subCategorySchema = new mongoose.Schema({
         required: [true, 'Category ID is required']
     }
 }, {
-    timestamps: true // Automatically manage createdAt and updatedAt
+    timestamps: true
 });
 
 // Create the SubCategory model

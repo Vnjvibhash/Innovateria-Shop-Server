@@ -30,7 +30,7 @@ export const getUserById = async (req, res) => {
 };
 
 // Register
-export const createUser = 
+export const createUser =
   async (req, res) => {
     try {
       const {
@@ -88,7 +88,7 @@ export const createUser =
   };
 
 // Login
-export const userLogin = 
+export const userLogin =
   async (req, res) => {
     try {
       const { identifier, password } = req.body;
@@ -204,21 +204,21 @@ export const logoutUser = async (req, res) => {
 };
 
 // Update User Profile
-export const updateUser = 
+export const updateUser =
   async (req, res) => {
     try {
-      const {id} = req.params;
+      const { id } = req.params;
       const { email, name, ...rest } = req.body;
 
       console.log("id", id)
 
-      const user = await User.findOne({email});
-      
+      const user = await User.findOne({ email });
+
       console.log("userId", user)
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-      
+
 
       const updatedUser = await User.findByIdAndUpdate(
         id,

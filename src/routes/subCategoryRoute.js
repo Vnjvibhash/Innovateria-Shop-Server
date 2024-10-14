@@ -10,8 +10,8 @@ router.route('/:id').get(getSubCategory);
 router.route('/cat/:id').get(getSubCategoriesByCategory);
 
 router.use(authenticateToken);
-router.route('/').post( createSubCategory);
-router.route('/:id').put( updateSubCategory);
+router.route('/').post(createSubCategory);
+router.route('/:id').put(updateSubCategory);
 router.route('/:id').delete(deleteSubCategory)
 
 export default router;

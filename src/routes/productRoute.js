@@ -9,8 +9,8 @@ router.route('/').get(getProducts);
 router.route('/:id').get(getProduct);
 
 router.use(authenticateToken);
-router.route('/').post( createProduct);
-router.route('/:id').put( updateProduct);
-router.route('/:id').delete( deleteProduct);
+router.route('/').post(createProduct);
+router.route('/:id').put(updateProduct);
+router.route('/:id').delete(deleteProduct);
 
 export default router;

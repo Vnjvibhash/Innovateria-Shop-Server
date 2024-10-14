@@ -10,8 +10,8 @@ router.route('/:id').get(getBrand);
 router.route('/:subId').get(getBrandBySubcategory);
 
 router.use(authenticateToken);
-router.route('/').post( createBrand);
-router.route('/:id').put( updateBrand);
-router.route('/:id').delete( deleteBrand);
+router.route('/').post(createBrand);
+router.route('/:id').put(updateBrand);
+router.route('/:id').delete(deleteBrand);
 
 export default router;

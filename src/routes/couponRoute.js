@@ -9,9 +9,9 @@ router.route('/').get(getCoupons);
 router.route('/:id').get(getCoupon);
 
 router.use(authenticateToken);
-router.route('/').post( createCoupon);
-router.route('/:id').put( updateCoupon);
-router.route('/:id').delete( deleteCoupon);
+router.route('/').post(createCoupon);
+router.route('/:id').put(updateCoupon);
+router.route('/:id').delete(deleteCoupon);
 router.route('/validate').post(validateCoupon);
 
 export default router;
